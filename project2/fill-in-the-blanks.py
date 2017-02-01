@@ -29,31 +29,6 @@
 # How can you adapt that design to work with numbered blanks?
 
 # If you need help, you can sign up for a 1 on 1 coaching appointment: https://calendly.com/ipnd-1-1/20min/
-def prompt_try(current_paragraph, blank):
-	# display the current paragraph and 
-	# prompt the used to try an answer to fill the blank
-	print "The current paragraph reads as such:\n" + current_paragraph + "\n\n"
-	return raw_input("What should be substituted in for" + blank + "?") 
-
-def word_contain_blank(word, blank):
-	# test whether or not a string contains the blank
-	# True: return the blank; False: return None
-	if blank in word:
-		return blank
-	else:
-		return None
-
-def replace_blank(paragraph, blank, answer):  
-	# replace the blanks in the paragraph with the answer
-	replaced = []
-	splitted = paragraph.split()
-	for entry in splitted:
-		replacement = word_contain_blank(entry, blank)
-		if replacement == None:
-			replaced.append(entry)
-		else:
-			replaced.append(entry.replace(replacement, answer))
-	return " ".join(replaced)
 
 easy_quiz = ''' A common first thing to do in a language is display
 'Hello __1__!'  In __2__ this is particularly easy; all you have to do
@@ -80,50 +55,188 @@ Hypertext Markup Language, which is used by the __2__ to parse the webpage. The 
 of the World Wide Web include __3__, __4__ and __5__. And __3__ interact with __5__ with HTTP.'''
 hard_answer = ['HTML', 'browsers', 'clients', 'Internet', 'servers']
 
-print "Please select a game difficulty by typing it in!\n"
-choices = ['easy', 'medium', 'hard']
-while True:
-	difficulty = raw_input("Possible choices include easy, medium, and hard.\n")
-	if difficulty in choices:
-		print "You've chosen " + difficulty + "!\n"
-		break
-	else:
-		print "That's not an option!"
+def select_level():
+	"""The function prompts the user to select a game difficulty level from easy, medium, and hard.
 
-guess_num = raw_input("Set how many wrong guesses you can make before you lose.\n")
-print "You will get " + str(guess_num) + " guesses per problem\n"
+    Args:
+        Takes no inputs.
 
-if difficulty == 'easy':
-	current_paragraph = easy_quiz
-	answers = easy_answer
-else:
-	if difficulty == 'medium':
-		current_paragraph = medium_quiz
-		answers = medium_answer
-	else:
-		current_paragraph = hard_quiz
-		answers = hard_answer
-blank_num = len(answers)
+    Returns:
+        difficulty (str): The selected difficulty level.
 
-index = 0
-while index < blank_num:
-	guess_left = int(guess_num)
-	blank = "__" + str(index + 1) + "__"
-	while guess_left > 0:
-		trial = prompt_try(current_paragraph, blank)
-		answer = answers[index]
-		if trial == answer:
-			print "Correct!\n\n"
-			current_paragraph = replace_blank(current_paragraph, blank, answer)
-			index += 1
+    """
+	print "Please select a game difficulty by typing it in!\n"
+	choices = ['easy', 'medium', 'hard']
+	while True:
+		difficulty = raw_input("Possible choices include easy, medium, and hard.\n")
+		if difficulty in choices:
+			print "You've chosen " + difficulty + "!\n"
 			break
 		else:
-			guess_left -= 1
-			if guess_left != 0:
-				print "Wrong! Try again. You have " + str(guess_left) + " guesses left."
-	if guess_left == 0:
-		print "\nYou've failed too many straight guesses!  Game over!"
-		break
+			print "That's not an option!"
+	return difficulty
 
-if guess_left != 0:
-	print current_paragraph + "\nYou won!"
+def set_guess_num():
+	"""The function prompts the user to set how many wrong guesses one can make for each blank before lose.
+
+    Args:
+        Takes no inputs.
+
+    Returns:
+        int: The number of guesses you can try for each blank.
+
+    """
+	guess_num = raw_input("Set how many wrong guesses you can make before you lose.\n")
+	print "You will get " + guess_num + " guesses per problem\n"
+	return int(guess_num)
+
+def initialize_game():
+	"""The function initializes the game according to the difficulty level selected.
+
+    Args:
+        Takes no inputs.
+
+    Returns:
+        paragraph (str): The initialized paragraph.
+        answers (list): The initialized answers.
+        guess_num (int): The number of guesses you can try for each blank.
+        blank_num (int): The number of blanks you need to guess.
+    """
+	difficulty = select_level()
+	if difficulty == 'easy':
+		paragraph = easy_quiz
+		answers = easy_answer
+	else:
+		if difficulty == 'medium':
+			paragraph = medium_quiz
+			answers = medium_answer
+		else:
+			paragraph = hard_quiz
+			answers = hard_answer
+	guess_num = set_guess_num()
+	blank_num = len(answers)
+	return paragraph, answers, guess_num, blank_num
+
+def prompt_try(paragraph, blank):
+	"""The function displays the paragraph and prompts the user to try an answer to fill the blank.
+
+    Args:
+        paragraph (str): The paragraph.
+        blank (str): The blank needs to be filled.
+
+    Returns:
+        str: User input.
+
+    """
+	print "The current paragraph reads as such:\n" + paragraph + "\n\n"
+	return raw_input("What should be substituted in for" + blank + "?") 
+
+def word_contain_blank(word, blank):
+	"""The function tests whether or not a word contains the blank.
+
+    Args:
+        word (str): The word to be tested.
+        blank (str): The blank.
+
+    Returns:
+        str: Return the blank if the word contains the blank; return None otherwise.
+
+    """
+	if blank in word:
+		return blank
+	else:
+		return None
+
+def replace_blank(paragraph, blank, answer):
+	"""The function replaces the blanks in the paragraph with the answer.
+
+    Args:
+        paragraph (str): The paragraph with blanks.
+        blank (str): The blank need to be replaced.
+        answer (str): The answer to replace the blank.
+
+    Returns:
+        str: The updated paragraph with the blanks replaced by the answer.
+
+    """  
+	replaced = []
+	splitted = paragraph.split()
+	for entry in splitted:
+		replacement = word_contain_blank(entry, blank)
+		if replacement == None:
+			replaced.append(entry)
+		else:
+			replaced.append(entry.replace(replacement, answer))
+	return " ".join(replaced)
+
+def try_correct(paragraph, blank, answer):
+	"""The function is called when the trial is correct:
+	It displays the Correct information, and calls replace_blank() function 
+	to replaces the blanks in the paragraph with the answer.
+
+    Args:
+        paragraph (str): The paragraph with blanks.
+        blank (str): The blank need to be replaced.
+        answer (str): The answer to replace the blank.
+
+    Returns:
+        paragraph (str): The updated paragraph with the blanks replaced by the answer.
+
+    """ 
+	print "Correct!\n\n"				
+	paragraph = replace_blank(paragraph, blank, answer)
+	return paragraph
+
+def try_wrong(guess_left, guess_zero_left):
+	"""The function is called when the trial is wrong:
+	It updates the number of guesses left and displays the Wrong information accordingly.
+
+    Args:
+        guess_left (int): The number of guesses left.
+        guess_zero_left (int): 0 guess left(means you lose).
+
+    Returns:
+        guess_left(int): The updated number of guesses left.
+
+    """ 
+	guess_left -= 1
+	if guess_left != guess_zero_left:
+		print "Wrong! Try again. You have " + str(guess_left) + " guesses left.\n\n"
+	return guess_left
+
+
+def play_game(paragraph, answers, guess_num, blank_num):
+	"""The main function to play the game, called after initialize_game().
+
+    Args:
+        paragraph (str): The initialized paragraph.
+        answers (list): The initialized answers.
+        guess_num (int): The number of guesses you can try for each blank.
+        blank_num (int): The number of blanks you need to guess.
+
+    Returns:
+        No returns.
+
+    """ 	
+	index, guess_zero_left = 0, 0
+	while index < blank_num:
+		guess_left = guess_num
+		blank = "__" + str(index + 1) + "__"
+		while guess_left > guess_zero_left:
+			answer = answers[index]
+			trial = prompt_try(paragraph, blank)			
+			if trial == answer:
+				paragraph = try_correct(paragraph, blank, answer)
+				index += 1
+				break
+			guess_left = try_wrong(guess_left, guess_zero_left)
+		if guess_left == guess_zero_left:
+			print "\nYou've failed too many straight guesses!  Game over!"
+			break
+	if guess_left != guess_zero_left:
+		print paragraph + "\n\nYou won!"
+
+
+
+paragraph, answers, guess_num, blank_num = initialize_game()
+play_game(paragraph, answers, guess_num, blank_num)
