@@ -1,0 +1,41 @@
+* {
+	box-sizing: border-box;
+	/*outline: 1px solid red;*/
+}
+
+/* set the background color of the page*/
+body {
+  background-color: gray;
+}
+
+/* set the background color of h1*/
+h1 {
+  background-color: blue;
+}
+
+/* set the background color of h2*/
+h2 {
+  background-color: yellow;
+}
+
+/* set the background color of h3*/
+h3 {
+  background-color: green;
+}
+
+/* set the font used in paragraphs*/
+p {
+	font-family: cursive, sans-serif;
+	font-size: 1em;
+}
+
+.illustration {
+	display: flex;
+}
+
+img {
+	height: auto; 
+    width: auto; 
+    max-width: 100px; 
+    max-height: 100px;
+}
